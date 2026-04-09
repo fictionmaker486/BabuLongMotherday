@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>獻給最珍貴的你：母親節專屬測驗 | 巴部農 BabuLong</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background: 0 100% 99%; /* Very light red */
+            --card: 0 0% 100%;
+            --primary: 0 84% 60%; /* Bright Red */
+            --primary-foreground: 0 0% 100%;
+            --muted: 0 20% 96%;
+            --muted-foreground: 0 10% 45%;
+            --border: 0 30% 92%;
+        }
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: hsl(var(--background));
+            color: #334155;
+            -webkit-font-smoothing: antialiased;
+        }
+        .serif { font-family: 'Noto Serif TC', serif; }
+        
+        /* 動畫效果 */
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* shadcn-ui 類似元件的自訂類別 */
+        .card {
+            background-color: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+        .btn-primary {
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: opacity 0.2s;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-primary:active { transform: scale(0.98); }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid hsl(var(--border));
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        .btn-outline:hover {
+            background-color: hsl(var(--muted));
+            border-color: hsl(0, 40%, 85%);
+        }
+        .btn-outline:active { transform: scale(0.99); }
+
+        /* 隱藏滾動條但保留滾動功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- 主容器 -->
+    <div id="app" class="w-full max-w-md flex flex-col min-h-[90vh] relative">
+        
+        <!-- 動態內容區塊 -->
+        <div class="flex-1 flex flex-col justify-center pb-8">
+            
+            <!-- 1. 開始頁面 -->
+            <div id="home-screen" class="text-center space-y-8 fade-in">
+                <div class="space-y-3">
+                    <div class="inline-block px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-bold tracking-widest mb-2">
+                        MOTHER'S DAY SPECIAL | 感恩限定版
+                    </div>
+                    <h1 class="text-3xl serif font-bold text-slate-800 leading-tight">
+                        喚醒心中的小女孩<br><span class="text-red-500">母親節專屬測驗</span>
+                    </h1>
+                    <p class="text-slate-500 text-sm leading-relaxed px-4">
+                        在成為無所不能的母親之前，你也曾是個愛作夢的小女孩。透過測驗，找回那份最初的純淨，送給自己（或媽咪）一份專屬的健康呵護。
+                    </p>
+                </div>
+                
+                <div class="relative w-56 h-56 mx-auto overflow-hidden rounded-2xl card p-2 bg-red-50/30 flex items-center justify-center border border-red-100">
+                    <img src="image_637663.png" alt="巴部農 感恩限定版" class="w-4/5 h-4/5 object-contain drop-shadow-xl relative z-10">
+                </div>
+
+                <button onclick="startQuiz()" class="w-full py-3.5 btn-primary text-base">
+                    開始尋找內心的女孩
+                </button>
+            </div>
+
+            <!-- 2. 測驗題目頁面 -->
+            <div id="quiz-screen" class="hidden space-y-6 w-full fade-in">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-medium text-red-500">第 <span id="progress-text" class="text-lg serif font-bold">1</span> 題</span>
+                    <span class="text-xs text-slate-400">共 4 題</span>
+                </div>
+                
+                <div class="h-1.5 w-full bg-red-100 rounded-full overflow-hidden mb-8">
+                    <div id="progress-bar" class="h-full bg-red-400 transition-all duration-500 ease-out" style="width: 25%"></div>
+                </div>
+
+                <!-- 每一題都出現的產品圖片 -->
+                <div class="flex justify-center mb-4 h-36">
+                    <img src="image_637663.png" alt="巴部農感恩限定版" class="h-full object-contain drop-shadow-md">
+                </div>
+
+                <div id="question-container" class="space-y-6">
+                    <h2 id="question-text" class="text-lg serif font-bold text-slate-800 leading-relaxed min-h-[4rem]"></h2>
+                    <div id="options-container" class="space-y-3 flex flex-col">
+                        <!-- 選項由 JS 生成 -->
+                    </div>
+                    <!-- 新增：返回上一題按鈕 -->
+                    <button id="btn-back" onclick="goBack()" class="hidden w-full py-2 mt-2 text-slate-400 text-sm hover:text-red-500 transition-colors">
+                        ← 回上一題
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. 計算中頁面 -->
+            <div id="loading-screen" class="hidden text-center space-y-6 py-20 fade-in flex flex-col items-center justify-center">
+                <div class="animate-spin inline-block w-10 h-10 border-4 border-red-200 border-t-red-500 rounded-full"></div>
+                <p class="text-red-500 font-medium text-sm animate-pulse">正在為你尋找最專屬的純淨祝福...</p>
+            </div>
+
+            <!-- 4. 結果頁面 -->
+            <div id="result-screen" class="hidden space-y-6 fade-in w-full">
+                <div class="text-center space-y-2 mt-4">
+                    <p class="text-xs font-bold text-red-500 tracking-widest uppercase">測驗結果</p>
+                    <h2 id="result-title" class="text-2xl serif font-bold text-slate-800"></h2>
+                    <p id="result-subtitle" class="text-sm font-medium text-slate-500"></p>
+                </div>
+
+                <!-- 測驗結果分析卡片 -->
+                <div class="card p-6 space-y-5 mt-6">
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                            專屬特質
+                        </h3>
+                        <p id="result-desc" class="text-sm text-slate-600 leading-relaxed"></p>
+                    </div>
+                    
+                    <div class="pt-4 border-t border-red-50 space-y-2">
+                        <h3 class="text-sm font-bold text-slate-800">給你的專屬祝福</h3>
+                        <p id="result-magic" class="text-sm text-slate-600 italic bg-red-50/50 p-3 rounded-md border border-red-100/50"></p>
+                    </div>
+
+                    <div class="pt-4 border-t border-red-50 space-y-2">
+                        <h3 class="text-sm font-bold text-red-600">最適合你的健康呵護</h3>
+                        <p id="product-recommend" class="text-sm text-slate-600 leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <!-- 新增：母親節限定優惠方案區塊 -->
+                <div class="pt-6 space-y-4">
+                    <div class="text-center">
+                        <h3 class="text-lg serif font-bold text-slate-800">母親節專屬・限定優惠組合</h3>
+                        <p class="text-xs text-slate-500 mt-1">給媽咪最純淨的呵護，多箱組合更划算</p>
+                    </div>
+                    
+                    <!-- 新增的外箱圖片 -->
+                    <div class="flex justify-center mb-4 relative">
+                        <div class="absolute inset-0 bg-red-100/30 rounded-xl transform rotate-2 scale-105 -z-10"></div>
+                        <img src="image_63db63.jpg" alt="巴部農感恩限定版外箱" class="w-4/5 object-contain rounded-xl drop-shadow-md border border-red-50">
+                    </div>
+
+                    <div class="space-y-3">
+                        <!-- 方案A：2箱 -->
+                        <a href="https://www.babulong.com.tw/zh-TW/products/moi-limited" target="_blank" class="block border border-red-200 rounded-xl p-4 bg-white hover:border-red-400 hover:shadow-md transition-all relative overflow-hidden group">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-slate-800 text-base group-hover:text-red-600 transition-colors">【寵愛入門】2 箱體驗組</h4>
+                                <span class="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-1 rounded-full">入門首選</span>
+                            </div>
+                            <div class="flex items-end gap-2 mb-2">
+                                <span class="text-2xl font-bold text-red-600">NT$ 2,099</span>
+                                <span class="text-xs text-slate-400 line-through mb-1">NT$ 3,360</span>
+                            </div>
+                            <div class="bg-slate-50 rounded-lg p-2 text-xs text-slate-600">
+                                雙倍的純淨，一份送給媽咪，一份好好寵愛自己。
+                            </div>
+                        </a>
+
+                        <!-- 方案B：3箱 (主打) -->
+                        <a href="https://www.babulong.com.tw/zh-TW/products/moi-limited" target="_blank" class="block border-2 border-red-400 rounded-xl p-4 bg-red-50 hover:bg-red-100 hover:shadow-lg transition-all relative overflow-hidden group transform scale-[1.02]">
+                            <div class="absolute top-0 right-0 bg-gradient-to-r from-red-500 to-pink-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg">最熱銷推薦</div>
+                            <div class="flex justify-between items-start mb-1 pt-1">
+                                <h4 class="font-bold text-slate-800 text-base group-hover:text-red-700 transition-colors">【溫馨分享】3 箱熱銷組</h4>
+                            </div>
+                            <div class="flex items-end gap-2 mb-2">
+                                <span class="text-3xl font-bold text-red-600">NT$ 2,999</span>
+                                <span class="text-xs text-slate-400 line-through mb-1">NT$ 5,040</span>
+                            </div>
+                            <div class="bg-white/80 rounded-lg p-2 text-xs text-slate-600">
+                                母親節專屬回饋，全家一起享受最高品質的健康飲水。
+                            </div>
+                        </a>
+
+                        <!-- 方案C：6箱 -->
+                        <a href="https://www.babulong.com.tw/zh-TW/products/moi-limited" target="_blank" class="block border border-red-200 rounded-xl p-4 bg-white hover:border-red-400 hover:shadow-md transition-all relative overflow-hidden group">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-slate-800 text-base group-hover:text-red-600 transition-colors">【極致呵護】6 箱尊榮組</h4>
+                                <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-full">VIP 禮遇</span>
+                            </div>
+                            <div class="flex items-end gap-2 mb-2">
+                                <span class="text-2xl font-bold text-red-600">NT$ 5,200</span>
+                                <span class="text-xs text-slate-400 line-through mb-1">NT$ 10,080</span>
+                            </div>
+                            <div class="bg-slate-50 rounded-lg p-2 text-xs text-slate-600">
+                                <span class="font-bold text-red-500">520</span> 寓意：我愛你。用最頂級的長效守護，給媽咪最無微不至的極致寵愛，單箱最划算！
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <button onclick="location.reload()" class="w-full py-4 mt-4 text-slate-400 text-sm hover:text-red-600 font-medium transition-colors text-center">
+                    ↺ 重新測驗
+                </button>
+            </div>
+
+        </div>
+
+        <!-- 全局常駐：修改為引導至優惠方案 (shadcn 風格) -->
+        <div class="mt-auto pt-4 pb-2 shrink-0">
+            <div class="card p-3 hover:border-red-200 transition-colors bg-white/90 backdrop-blur-md shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="w-12 h-12 rounded-md bg-red-50 flex items-center justify-center shrink-0 border border-red-100 p-1 overflow-hidden">
+                        <img src="image_637663.png" alt="巴部農感恩限定版" class="w-full h-full object-contain rounded mix-blend-multiply">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-sm font-bold text-slate-800 truncate">巴部農母親節限定</h4>
+                        <p class="text-xs text-slate-500 truncate mt-0.5">多款專屬優惠組合實施中</p>
+                    </div>
+                    <a href="https://www.babulong.com.tw/zh-TW/products/moi-limited" target="_blank" class="shrink-0 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-md transition-colors shadow-sm">
+                        立即選購 ➔
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const questions = [
+            {
+                text: "如果能回到小女孩的時光，你（或媽咪）最懷念哪種無憂無慮的感覺？",
+                options: [
+                    { text: "在清澈的小溪邊玩水，感受微風", value: "A" },
+                    { text: "在陽光下奔跑，放聲大笑", value: "B" },
+                    { text: "躲在秘密基地裡，安靜地看著書", value: "C" },
+                    { text: "天馬行空地畫畫，創造自己的世界", value: "D" }
+                ]
+            },
+            {
+                text: "現在的你，在為家人付出時，最常展現出哪種隱藏的力量？",
+                options: [
+                    { text: "像水一樣包容，化解家裡的所有情緒", value: "A" },
+                    { text: "像太陽一樣溫暖，給予全家人滿滿活力", value: "B" },
+                    { text: "像大樹一樣堅定，是家人最安心的依靠", value: "C" },
+                    { text: "像魔法師一樣，總能為平凡日子製造驚喜", value: "D" }
+                ]
+            },
+            {
+                text: "當看到瓶身上那個紅髮小女孩的插畫時，你覺得她正在對你說什麼？",
+                options: [
+                    { text: "「辛苦了，記得多喝水，照顧好自己。」", value: "A" },
+                    { text: "「不管幾歲，都要保持漂亮跟開心喔！」", value: "B" },
+                    { text: "「深呼吸，你已經做得很棒了。」", value: "C" },
+                    { text: "「別忘了你的夢想，偶爾也要為自己調皮一下！」", value: "D" }
+                ]
+            },
+            {
+                text: "今年的母親節，這份來自巴部農的純淨獻禮，你最希望它能為你帶來什麼改變？",
+                options: [
+                    { text: "洗滌身心疲憊，讓身體回歸最純粹的平衡", value: "A" },
+                    { text: "由內而外滋養，重新煥發青春的好氣色", value: "B" },
+                    { text: "沉澱繁雜思緒，找回內心深處的從容與平靜", value: "C" },
+                    { text: "喚醒純真童心，讓日常飲水充滿專屬的儀式感", value: "D" }
+                ]
+            }
+        ];
+
+        const results = {
+            A: {
+                title: "純淨水女孩",
+                subtitle: "包容一切的溫柔守護者",
+                desc: "你的內心住著一個清澈如水的女孩。在成為母親後，這份清澈化作了無盡的包容，你總是細心呵護著家人的每一刻，給予最安定的力量。",
+                magic: "願你在照顧家人之餘，也能像最初那個在溪邊玩耍的小女孩一樣，純淨無負擔。",
+                product: "pH 9.0 天然鹼性水是你最好的健康後盾，幫助調整體質，讓你在日常中找回身心的純淨與平衡。"
+            },
+            B: {
+                title: "陽光花女孩",
+                subtitle: "活力四射的熱情發光體",
+                desc: "你的內心住著一個永遠向陽奔跑的女孩。這份熱情讓你成為家中最溫暖的太陽，你的笑容與活力，總是能輕易驅散家中的陰霾。",
+                magic: "願你永遠保持這份熱情，散發耀眼迷人的自信光芒，不被歲月帶走一絲色彩。",
+                product: "含有『水中黃金』偏硅酸的巴部農天然鹼性水，能幫助鎖住水分，由內而外滋養身體，讓你時刻透出青春好氣色。"
+            },
+            C: {
+                title: "堅韌樹女孩",
+                subtitle: "沉穩從容的智慧依靠",
+                desc: "你的內心住著一個喜歡在安靜角落思考的女孩。這份沉靜讓你在面對生活的各種挑戰時，總能展現出堅韌與優雅，是家人最可靠的支柱。",
+                magic: "願你在繁忙的歲月中，偶爾也能躲進自己的秘密基地，找回那份從容與平靜。",
+                product: "超低赫茲的小分子水極易人體吸收，這份純粹精緻的珍稀水質，正好對應你對生活品質的高標準與講究。"
+            },
+            D: {
+                title: "魔法夢女孩",
+                subtitle: "充滿靈感的質感夢想家",
+                desc: "你的內心住著一個愛畫畫的調皮女孩。你不只是母親，更是閃耀的你自己。你對生活充滿巧思，總能在平凡日常中創造不凡的儀式感。",
+                magic: "願你永遠珍視內心那個愛作夢的小女孩，把每一天都過成精緻的童話。",
+                product: "巴部農母親節感恩限定版正是為你而生！瓶身上的紅髮女孩，就是為了喚醒你的初心，陪伴你每一刻的純淨時光。"
+            }
+        };
+
+        let currentStep = 0;
+        let scores = { A: 0, B: 0, C: 0, D: 0 };
+        let selectionHistory = []; // 新增：用來記錄每題的選擇，方便回上一題
+
+        function startQuiz() {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentStep];
+            document.getElementById('question-text').innerText = q.text;
+            document.getElementById('progress-text').innerText = (currentStep + 1);
+            document.getElementById('progress-bar').style.width = ((currentStep + 1) / questions.length * 100) + '%';
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "btn-outline w-full p-4 text-left flex items-center group";
+                btn.innerHTML = `
+                    <span class="w-7 h-7 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center mr-3 text-xs text-slate-500 group-hover:bg-red-50 group-hover:border-red-300 group-hover:text-red-600 transition-colors shrink-0">${opt.value}</span>
+                    <span class="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">${opt.text}</span>
+                `;
+                btn.onclick = () => selectOption(opt.value);
+                optionsContainer.appendChild(btn);
+            });
+
+            // 處理回上一題按鈕的顯示狀態
+            const btnBack = document.getElementById('btn-back');
+            if (btnBack) {
+                if (currentStep > 0) {
+                    btnBack.classList.remove('hidden');
+                } else {
+                    btnBack.classList.add('hidden');
+                }
+            }
+        }
+
+        function selectOption(val) {
+            selectionHistory.push(val); // 紀錄這次的選擇
+            scores[val]++;
+            if (currentStep < questions.length - 1) {
+                currentStep++;
+                const container = document.getElementById('question-container');
+                container.classList.remove('fade-in');
+                void container.offsetWidth; // 強制重繪觸發動畫
+                container.classList.add('fade-in');
+                showQuestion();
+            } else {
+                calculateResult();
+            }
+        }
+
+        // 新增：回上一題的功能
+        function goBack() {
+            if (currentStep > 0) {
+                const lastSelection = selectionHistory.pop(); // 取出前一次的選擇
+                scores[lastSelection]--; // 扣除前一次的計分
+                currentStep--; // 回到上一題的 index
+                
+                const container = document.getElementById('question-container');
+                container.classList.remove('fade-in');
+                void container.offsetWidth; 
+                container.classList.add('fade-in');
+                
+                showQuestion();
+            }
+        }
+
+        function calculateResult() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('loading-screen').classList.remove('hidden');
+            
+            let maxScore = 0;
+            let finalResult = 'A';
+            for (let key in scores) {
+                if (scores[key] >= maxScore) {
+                    maxScore = scores[key];
+                    finalResult = key;
+                }
+            }
+
+            setTimeout(() => {
+                showResult(finalResult);
+            }, 1200);
+        }
+
+        function showResult(type) {
+            const data = results[type];
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            document.getElementById('result-title').innerText = data.title;
+            document.getElementById('result-subtitle').innerText = data.subtitle;
+            document.getElementById('result-desc').innerText = data.desc;
+            document.getElementById('result-magic').innerText = data.magic;
+            document.getElementById('product-recommend').innerText = data.product;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
